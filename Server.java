@@ -4,6 +4,11 @@ import java.io.BufferedReader;
 import java.io.PrintWriter;
 import java.io.InputStreamReader;
 import java.io.IOException;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.nio.charset.StandardCharsets;
 
 class Server {
   private ServerSocket serverSocket;
@@ -16,16 +21,24 @@ class Server {
       connection = serverSocket.accept();
       out = new PrintWriter(connection.getOutputStream(), true);
       in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-      String message = in.readLine();
-      System.out.println("client: " + message);
-      if ("ping".equals(message)) {
-          out.println("pong");
-      } else {
-          out.println("EROOR!");
-      }
+  }
+
+  public String getConnectedIP() throws Exception {
+    if(connection != null) {
+      return connection.getInetAddress().toString();
+    }
+    throw new Exception("Server has not connected to a Client yet!");
+  }
+
+  public void sendMessage(String message) throws IOException {
+      out.println(message);
+  }
+
+  public String receiveMessage() throws IOException {
+      return in.readLine();
   }
   
-  public void stop() throws IOException{
+  public void close() throws IOException{
     in.close();
     out.close();
     connection.close();
