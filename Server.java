@@ -1,48 +1,52 @@
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.io.BufferedReader;
-import java.io.PrintWriter;
-import java.io.InputStreamReader;
 import java.io.IOException;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
-import java.util.List;
-import java.nio.charset.StandardCharsets;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 class Server {
+  private ArrayList<Connection> clientConnections;
   private ServerSocket serverSocket;
-  private Socket connection;
-  private BufferedReader in;
-  private PrintWriter out;
+  private ExecutorService connectionThreadPool;
+  private boolean running;
+  
+  public Server() {
+    clientConnections = new ArrayList<>();
+    running = true;
+  }
 
   public void listen(int port) throws IOException {
       serverSocket = new ServerSocket(port);
-      connection = serverSocket.accept();
-      out = new PrintWriter(connection.getOutputStream(), true);
-      in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+      connectionThreadPool = Executors.newCachedThreadPool();
+      while(running) {
+        Socket connectionSocket = serverSocket.accept();
+        Connection clientConnection = new Connection(this, connectionSocket);
+        clientConnections.add(clientConnection);
+        connectionThreadPool.execute(clientConnection);
+      }
   }
 
-  public String getConnectedIP() throws Exception {
-    if(connection != null) {
-      return connection.getInetAddress().toString();
+  public void broadcast(String message) {
+    for(Connection connection : clientConnections) {
+      if(connection != null) {
+        connection.sendMessage(message);
+      }
     }
-    throw new Exception("Server has not connected to a Client yet!");
   }
 
-  public void sendMessage(String message) throws IOException {
-      out.println(message);
-  }
-
-  public String receiveMessage() throws IOException {
-      return in.readLine();
-  }
-  
-  public void close() throws IOException{
-    in.close();
-    out.close();
-    connection.close();
-    serverSocket.close();
+  public void close() {
+    try {
+      running = false;
+      if(!serverSocket.isClosed()) {
+        serverSocket.close();
+      }
+      for(Connection connection : clientConnections) {
+        connection.close();
+      }
+    } catch(Exception e) {
+      System.out.println("Error occured closing server: " + e);
+    }
   }
 
 }
