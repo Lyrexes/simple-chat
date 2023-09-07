@@ -2,12 +2,13 @@
 A simple server client chat exmaple in java.
 ## Usage 
 ```
-Main [Option]
+SimpleChat [Option]
  --server, -s
- --client, -c
+ --client, -c [IP-Adress]
 ```
 
-## Run
+## Build and Run
 ```
-  java Main [Option]
+  javac *.java
+  java SimpleChat [Option]
 ```
