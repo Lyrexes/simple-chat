@@ -74,6 +74,11 @@ public class Connection implements Runnable {
   
   public void close() {
     server.broadcast(username + " left the chat!");
+    System.out.println(
+        "client: " + username + " (" 
+        + clientConnection.getInetAddress()
+        + ")" + " disconnected!"
+      );
     try {
       if(!clientConnection.isClosed()) {
         clientConnection.close();
