@@ -1,5 +1,5 @@
 # Simple Chat
-A simple server client chat exmaple in java.
+A simple chat app exmaple in java.
 ## Usage 
 ```
 SimpleChat [Option]
