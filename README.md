@@ -7,7 +7,7 @@ SimpleChat [Option]
  --client, -c [IP-Adress]
 ```
 
-## Build and Run
+## Build && Run
 ```
   javac *.java
   java SimpleChat [Option]
